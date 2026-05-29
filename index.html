@@ -379,7 +379,6 @@ window.doLogin = async function() {
     await loadData();
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
-    document.getElementById('f-datum').value=new Date().toISOString().split('T')[0];
     await loadTimerState();
     render();
     applyTimerUI();
