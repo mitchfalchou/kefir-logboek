@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kefir Logboek — Falchou & Buytaert</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#F7F3ED; --cream-dark:#EDE7DC; --bark:#2C2318; --bark-mid:#5C4A35;
+  --moss:#3D5A3E; --moss-light:#6B8F6C; --moss-pale:#C8D8C9; --moss-faint:#EBF2EB;
+  --clay:#A0674A; --gold:#C4922A; --red:#B94040; --red-faint:#FAF0F0;
+  --radius:10px; --radius-lg:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--cream);color:var(--bark);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--moss);position:relative;overflow:hidden;}
+.login-wrap::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;border-radius:50%;border:1px solid rgba(255,255,255,0.06);}
+.login-card{background:var(--cream);border-radius:20px;padding:48px 44px;width:100%;max-width:400px;margin:20px;position:relative;z-index:1;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.login-eyebrow{font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--moss-light);margin-bottom:10px;}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;font-style:italic;color:var(--bark);margin-bottom:6px;line-height:1.1;}
+.login-sub{font-size:13px;color:var(--bark-mid);margin-bottom:28px;line-height:1.6;}
+.login-label{font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--moss-light);display:block;margin-bottom:8px;}
+.login-input{width:100%;background:var(--cream-dark);border:1px solid var(--cream-dark);border-radius:var(--radius);padding:13px 16px;font-family:'DM Mono',monospace;font-size:22px;letter-spacing:0.25em;color:var(--bark);outline:none;text-align:center;transition:border-color 0.15s;margin-bottom:14px;}
+.login-input:focus{border-color:var(--moss-light);background:white;}
+.login-btn{width:100%;background:var(--moss);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:14px;border-radius:var(--radius);border:none;cursor:pointer;transition:background 0.18s;}
+.login-btn:hover{background:#2d4430;}
+.login-btn:disabled{background:var(--moss-pale);cursor:not-allowed;}
+.login-error{background:var(--red-faint);border:1px solid #f0c0c0;border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--red);margin-top:12px;display:none;}
+.login-hint{font-size:12px;color:var(--bark-mid);margin-top:20px;padding-top:16px;border-top:1px solid var(--cream-dark);line-height:1.6;}
+.login-hint strong{color:var(--moss);}
+
+/* APP */
+#app{display:none;}
+header{background:var(--moss);padding:22px 40px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.15);}
+.brand-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;color:var(--cream);}
+.brand-sub{font-size:10px;font-weight:400;letter-spacing:0.14em;text-transform:uppercase;color:var(--moss-pale);margin-top:3px;}
+.header-actions{display:flex;gap:8px;align-items:center;}
+.sync-status{font-size:11px;color:var(--moss-pale);display:flex;align-items:center;gap:6px;margin-right:8px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--moss-pale);transition:background 0.3s;}
+.sync-dot.syncing{background:var(--gold);animation:pulse 1s infinite;}
+.sync-dot.synced{background:#7dcc7e;}
+.sync-dot.error{background:#f08080;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.06em;padding:8px 16px;border-radius:var(--radius);border:none;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px;}
+.btn-outline{background:transparent;color:var(--moss-pale);border:1px solid rgba(255,255,255,0.2);}
+.btn-outline:hover{background:rgba(255,255,255,0.08);color:var(--cream);}
+.btn-ghost{background:transparent;color:rgba(235,242,235,0.5);border:none;font-size:11px;padding:6px 10px;}
+.btn-ghost:hover{color:var(--cream);}
+
+.stats-bar{background:var(--cream-dark);border-bottom:1px solid rgba(0,0,0,0.06);padding:14px 40px;display:flex;gap:40px;flex-wrap:wrap;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--moss);line-height:1;}
+.stat-label{font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--bark-mid);margin-top:2px;}
+
+.main{display:block;min-height:calc(100vh - 120px);}
+.fab{position:fixed;bottom:28px;right:28px;background:var(--moss);color:white;border:none;border-radius:50px;padding:14px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:50;display:flex;align-items:center;gap:8px;transition:background 0.18s,transform 0.15s;}
+.fab:hover{background:#2d4430;transform:translateY(-2px);}
+.form-panel{background:white;border-right:1px solid var(--cream-dark);padding:28px 24px;overflow-y:auto;position:sticky;top:74px;height:calc(100vh - 74px);}
+.form-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;font-style:italic;color:var(--bark);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--cream-dark);}
+.form-group{margin-bottom:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+label{display:block;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--moss-light);margin-bottom:5px;}
+input,select,textarea{width:100%;background:var(--cream);border:1px solid var(--cream-dark);border-radius:var(--radius);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;color:var(--bark);outline:none;transition:border-color 0.15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--moss-light);background:white;}
+textarea{resize:vertical;min-height:68px;line-height:1.6;}
+.form-divider{border:none;border-top:1px solid var(--cream-dark);margin:16px 0;}
+.rating-group{display:flex;gap:6px;}
+.rating-btn{flex:1;padding:7px 3px;border-radius:var(--radius);border:1px solid var(--cream-dark);background:var(--cream);font-size:12px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--bark-mid);}
+.rating-btn:hover{border-color:var(--moss-pale);}
+.rating-btn.active{background:var(--moss-faint);border-color:var(--moss-light);color:var(--moss);font-weight:500;}
+.submit-btn{width:100%;background:var(--moss);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:12px;border-radius:var(--radius);border:none;cursor:pointer;transition:background 0.18s;margin-top:6px;}
+.submit-btn:hover{background:#2d4430;}
+.submit-btn.editing{background:var(--gold);}
+.cancel-btn{width:100%;background:transparent;color:var(--bark-mid);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px;border-radius:var(--radius);border:1px solid var(--cream-dark);cursor:pointer;margin-top:5px;transition:background 0.15s;display:none;}
+.cancel-btn:hover{background:var(--cream);}
+.cancel-btn.visible{display:block;}
+
+/* TIMER */
+.timer-card{background:var(--moss);border-radius:var(--radius-lg);padding:22px 24px;margin-bottom:20px;position:relative;overflow:hidden;}
+.timer-card::before{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;border:1px solid rgba(255,255,255,0.07);pointer-events:none;}
+.timer-eyebrow{font-size:9px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--moss-pale);margin-bottom:8px;}
+.timer-display{font-family:'DM Mono',monospace;font-size:44px;font-weight:300;color:white;line-height:1;margin-bottom:4px;letter-spacing:0.04em;transition:color 0.3s;}
+.timer-card.running .timer-display{color:#9FE1CB;}
+.timer-batch-label{font-size:11px;color:rgba(200,216,201,0.65);margin-bottom:16px;min-height:15px;font-style:italic;}
+.timer-row{display:flex;gap:8px;margin-bottom:8px;}
+.timer-select{font-family:'DM Sans',sans-serif;font-size:12px;padding:9px 10px;border-radius:var(--radius);border:1px solid rgba(200,216,201,0.25);background:rgba(255,255,255,0.08);color:white;outline:none;cursor:pointer;flex:1;min-width:0;}
+.timer-select option{background:#2d4430;color:white;}
+.timer-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:9px 16px;border-radius:var(--radius);border:none;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.timer-btn.start{background:white;color:var(--moss);}
+.timer-btn.start:hover{background:var(--cream);}
+.timer-btn.stop{background:var(--clay);color:white;}
+.timer-btn.stop:hover{background:#8a5538;}
+.timer-btn.reset{background:transparent;color:rgba(200,216,201,0.7);border:1px solid rgba(200,216,201,0.2);}
+.timer-btn.reset:hover{background:rgba(255,255,255,0.08);color:white;}
+
+/* LOG */
+.log-panel{padding:28px 32px;}
+.filter-row{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.filter-btn{font-size:11px;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--cream-dark);background:transparent;color:var(--bark-mid);cursor:pointer;transition:all 0.15s;}
+.filter-btn.active{background:var(--moss-faint);border-color:var(--moss-light);color:var(--moss);}
+.log-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;font-style:italic;color:var(--bark);margin-bottom:20px;}
+
+.batch-card{background:white;border:1px solid var(--cream-dark);border-radius:var(--radius-lg);padding:22px;margin-bottom:12px;position:relative;overflow:hidden;transition:box-shadow 0.2s,border-color 0.2s;}
+.batch-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.06);border-color:var(--moss-pale);}
+.batch-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+.batch-card.status-goed::before{background:var(--moss);}
+.batch-card.status-ok::before{background:var(--gold);}
+.batch-card.status-weggegooid::before{background:var(--clay);}
+.batch-card.status-lopend::before{background:var(--moss-pale);}
+.batch-card.status-afgewacht::before{background:#a0a0a0;}
+.batch-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.batch-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--moss-light);letter-spacing:0.08em;margin-bottom:3px;}
+.batch-date{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--bark);}
+.batch-actions{display:flex;gap:5px;align-items:center;}
+.icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--cream-dark);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--bark-mid);font-size:12px;transition:all 0.15s;}
+.icon-btn:hover{background:var(--cream);}
+.icon-btn.delete:hover{background:var(--red-faint);color:var(--red);border-color:#f0c0c0;}
+.icon-btn.label-btn{font-size:11px;width:auto;padding:0 8px;gap:3px;}
+.icon-btn.label-btn:hover{background:var(--moss-faint);color:var(--moss);border-color:var(--moss-pale);}
+
+/* LABEL MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:white;border-radius:20px;padding:32px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;font-style:italic;color:var(--bark);margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end;}
+.modal-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 20px;border-radius:var(--radius);border:none;cursor:pointer;transition:all 0.18s;}
+.modal-btn.print{background:var(--moss);color:white;}
+.modal-btn.print:hover{background:#2d4430;}
+.modal-btn.close{background:transparent;color:var(--bark-mid);border:1px solid var(--cream-dark);}
+.modal-btn.close:hover{background:var(--cream);}
+
+/* ETIKET */
+.etiket{width:360px;margin:0 auto;border:2px solid var(--moss);border-radius:16px;overflow:hidden;font-family:'DM Sans',sans-serif;background:white;}
+.etiket-header{background:var(--moss);padding:16px 20px 12px;text-align:center;position:relative;}
+.etiket-koe{position:absolute;right:12px;top:50%;transform:translateY(-50%);}
+.etiket-brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;color:white;line-height:1;}
+.etiket-subbrand{font-size:9px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--moss-pale);margin-top:3px;}
+.etiket-body{padding:14px 18px;}
+.etiket-product{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--bark);margin-bottom:2px;}
+.etiket-sub{font-size:10px;color:var(--moss-light);font-style:italic;margin-bottom:12px;}
+.etiket-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.etiket-date-box{background:var(--moss-faint);border-radius:8px;padding:8px 10px;border:1px solid var(--moss-pale);}
+.etiket-date-label{font-size:8px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--moss-light);margin-bottom:2px;}
+.etiket-date-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:400;color:var(--bark);}
+.etiket-divider{border:none;border-top:1px solid var(--cream-dark);margin:10px 0;}
+.etiket-row{display:flex;justify-content:space-between;font-size:10px;padding:2px 0;}
+.etiket-row-label{color:var(--bark-mid);}
+.etiket-row-val{color:var(--bark);font-weight:500;text-align:right;max-width:55%;}
+.etiket-footer{background:var(--cream-dark);padding:8px 18px;font-size:9px;color:var(--bark-mid);display:flex;justify-content:space-between;align-items:center;}
+.etiket-raw{font-size:8px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--clay);background:#FFF2EC;padding:2px 6px;border-radius:4px;}
+
+@media print{
+  body>*{display:none!important;}
+  .print-area{display:block!important;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  .etiket{border:2px solid #3D5A3E;box-shadow:none;}
+}
+.batch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
+.batch-field-label{font-size:9px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--moss-light);margin-bottom:2px;}
+.batch-field-val{font-size:13px;color:var(--bark);}
+.status-pill{display:inline-flex;font-size:11px;font-weight:500;padding:3px 9px;border-radius:100px;}
+.status-pill.goed{background:var(--moss-faint);color:var(--moss);}
+.status-pill.ok{background:#FFF8EC;color:#8a6010;}
+.status-pill.weggegooid{background:#FFF2EC;color:var(--clay);}
+.status-pill.lopend{background:#F0F4FF;color:#3a5bcc;}
+.status-pill.afgewacht{background:#F5F5F5;color:#666;}
+.batch-notes{font-size:13px;color:var(--bark-mid);line-height:1.7;padding:9px 13px;background:var(--cream);border-radius:8px;margin-top:8px;font-style:italic;}
+.batch-timer-badge{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;font-weight:400;padding:3px 9px;border-radius:100px;background:var(--moss-faint);color:var(--moss);margin-left:4px;}
+.batch-timer-badge.active{background:#EAF6FF;color:#2a6099;animation:timerPulse 2s infinite;}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.empty-state{text-align:center;padding:80px 40px;color:var(--bark-mid);}
+.empty-state h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;font-style:italic;margin-bottom:8px;color:var(--bark);}
+
+.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;}
+.edit-modal-box{background:white;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.edit-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--cream-dark);}
+.edit-modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;font-style:italic;color:var(--bark);}
+.edit-modal-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--cream-dark);background:transparent;cursor:pointer;font-size:16px;color:var(--bark-mid);}
+@media(min-width:600px){.edit-modal-overlay{align-items:center;padding:20px;}.edit-modal-box{border-radius:20px;}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--moss);color:white;font-size:13px;padding:11px 18px;border-radius:var(--radius);box-shadow:0 4px 20px rgba(0,0,0,0.2);transform:translateY(70px);opacity:0;transition:all 0.3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+@media(max-width:860px){
+  .main{grid-template-columns:1fr;}
+  .form-panel{position:static;height:auto;border-right:none;border-bottom:1px solid var(--cream-dark);}
+  .batch-grid{grid-template-columns:repeat(2,1fr);}
+  header,.stats-bar,.log-panel,.form-panel{padding-left:20px;padding-right:20px;}
+  .timer-display{font-size:36px;}
+  .logout-text{display:none;}
+  .logout-icon{display:inline;}
+  header{padding:16px 20px;}
+  .brand-title{font-size:18px;}
+  .btn{padding:7px 10px;font-size:11px;}
+}
+@media(min-width:861px){
+  .logout-icon{display:none;}
+  .logout-text{display:inline;}
+}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">Falchou & Buytaert · Kalmthout</div>
+    <div class="login-title">Kefir<br>Logboek</div>
+    <div class="login-sub">Voer je geheime code in. Dezelfde code op elk toestel geeft toegang tot hetzelfde logboek.</div>
+    <label class="login-label">Geheime code</label>
+    <input class="login-input" type="password" id="login-code" placeholder="••••••" maxlength="30" autocomplete="off" />
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Inloggen →</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-hint"><strong>Eerste keer?</strong> Kies zelf een code — het logboek wordt automatisch aangemaakt. Gebruik dezelfde code op elk toestel.</div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div>
+      <div class="brand-title">Kefir Logboek</div>
+    </div>
+    <div class="header-actions">
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">—</span></div>
+      <button class="btn btn-outline" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn btn-outline" onclick="document.getElementById('import-input').click()">↑ Importeer CSV</button>
+      <input type="file" id="import-input" accept=".csv" style="display:none" onchange="importCSV(event)" />
+      <button class="btn btn-ghost" onclick="doLogout()"><span class="logout-text">Uitloggen</span><span class="logout-icon">⎋</span></button>
+    </div>
+  </header>
+  <div class="stats-bar" id="stats-bar"></div>
+  <div class="main">
+    <div class="log-panel">
+
+      <!-- TIMER -->
+      <div class="timer-card" id="timer-card">
+        <div class="timer-eyebrow">Fermentatietimer</div>
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-batch-label" id="timer-batch-label">Geen batch geselecteerd</div>
+        <div class="timer-row">
+          <select class="timer-select" id="timer-batch-select">
+            <option value="">— Koppel aan batch —</option>
+          </select>
+        </div>
+        <div class="timer-row" id="timer-manual-row" style="display:none">
+          <input type="datetime-local" id="timer-manual-start" class="timer-input" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(200,216,201,0.25);border-radius:var(--radius);padding:9px 12px;color:white;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;color-scheme:dark;" />
+          <button class="timer-btn start" onclick="applyManualStart()" style="white-space:nowrap">✓ Toepassen</button>
+        </div>
+        <div class="timer-row">
+          <button class="timer-btn start" id="timer-start-btn" onclick="startTimer()">▶ Start</button>
+          <button class="timer-btn stop" id="timer-stop-btn" onclick="stopTimer()" style="display:none">■ Stop & sla op</button>
+          <button class="timer-btn reset" onclick="resetTimer()">↺ Reset</button>
+          <button class="timer-btn reset" id="timer-adjust-btn" onclick="toggleManualRow()" title="Starttijd aanpassen">✎ Tijd</button>
+        </div>
+      </div>
+
+      <div class="log-title">Productiehistoriek</div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="setFilter(this,'alle')">Alle</button>
+        <button class="filter-btn" onclick="setFilter(this,'lopend')">Lopend</button>
+        <button class="filter-btn" onclick="setFilter(this,'goed')">Goed</button>
+        <button class="filter-btn" onclick="setFilter(this,'ok')">Ok</button>
+        <button class="filter-btn" onclick="setFilter(this,'weggegooid')">Weggegooid</button>
+      </div>
+      <div id="log-list"></div>
+    </div>
+  </div>
+  <button class="fab" onclick="openNewBatchModal()">＋ Nieuwe batch</button>
+</div>
+
+<!-- BATCH MODAL -->
+<div class="edit-modal-overlay" id="edit-modal" style="display:none" onclick="if(event.target===this){cancelEdit()}">
+  <div class="edit-modal-box" onclick="event.stopPropagation()">
+    <div class="edit-modal-header">
+      <div class="edit-modal-title" id="edit-modal-title">Nieuwe batch</div>
+      <button class="edit-modal-close" onclick="cancelEdit()">✕</button>
+    </div>
+    <div class="form-group"><label>Datum start</label><input type="date" id="m-datum" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Melk (liter)</label><input type="number" id="m-melk" step="0.1" min="0.1" placeholder="1.0" /></div>
+      <div class="form-group"><label>Korrels (gram)</label><input type="number" id="m-korrels" step="1" min="1" placeholder="50" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Temperatuur (°C)</label><input type="number" id="m-temp" step="0.5" placeholder="22" /></div>
+      <div class="form-group"><label>Fermentatietijd</label><input type="number" id="m-tijd" step="1" placeholder="24" /></div>
+    </div>
+    <div class="form-group">
+      <label>Melktype</label>
+      <select id="m-melktype">
+        <option value="Volle melk (gepasteuriseerd)">Volle melk (gepasteuriseerd)</option>
+        <option value="Gepasteuriseerde halfvolle melk">Gepasteuriseerde halfvolle melk</option>
+        <option value="Andere">Andere</option>
+      </select>
+    </div>
+    <hr class="form-divider">
+    <div class="form-group"><label>pH eindproduct</label><input type="number" id="m-ph" step="0.1" min="3" max="7" placeholder="4.5" /></div>
+    <div class="form-group">
+      <label>Smaakbeoordeling</label>
+      <div class="rating-group" id="m-rating-group">
+        <button class="rating-btn" data-val="Zacht & mild" onclick="setModalRating(this)">Zacht</button>
+        <button class="rating-btn" data-val="Evenwichtig" onclick="setModalRating(this)">Evenwichtig</button>
+        <button class="rating-btn" data-val="Uitgesproken zuur" onclick="setModalRating(this)">Zuur</button>
+        <button class="rating-btn" data-val="Te zuur" onclick="setModalRating(this)">Te zuur</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Consistentie</label>
+      <div class="rating-group" id="m-consistentie-group">
+        <button class="rating-btn" data-val="Dun" onclick="setModalConsistentie(this)">Dun</button>
+        <button class="rating-btn" data-val="Normaal" onclick="setModalConsistentie(this)">Normaal</button>
+        <button class="rating-btn" data-val="Romig & dik" onclick="setModalConsistentie(this)">Romig</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="m-status">
+        <option value="lopend">🔵 Lopend</option>
+        <option value="goed">🟢 Goed — bewaard</option>
+        <option value="ok">🟡 Ok — met opmerkingen</option>
+        <option value="weggegooid">🟠 Weggegooid (acclimatisatie)</option>
+        <option value="afgewacht">⚪ Afgewacht</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notities</label><textarea id="m-notities" placeholder="Kleur, geur, bijzonderheden…"></textarea></div>
+    <button class="submit-btn" id="modal-submit-btn" onclick="saveModalBatch()">+ Batch toevoegen</button>
+    <button class="cancel-btn visible" style="display:block;margin-top:8px;" onclick="cancelEdit()">Annuleren</button>
+  </div>
+</div>
+
+<!-- ETIKET MODAL -->
+<div class="modal-overlay" id="label-modal" style="display:none" onclick="closeLabelModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Etiket voorvertoning</div>
+    <div id="label-preview"></div>
+    <div class="modal-actions">
+      <button class="modal-btn close" onclick="document.getElementById('label-modal').style.display='none'">Sluiten</button>
+      <button class="modal-btn print" onclick="printLabel()">🖨 Afdrukken</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDaZClx5Vt3cI0hKBjozdtgTAG8sAiMK7o",
+  authDomain: "kefir-logboek.firebaseapp.com",
+  databaseURL: "https://kefir-logboek-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "kefir-logboek",
+  storageBucket: "kefir-logboek.firebasestorage.app",
+  messagingSenderId: "324624449099",
+  appId: "1:324624449099:web:ec1c3ac8a12f0554da17ce"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+let batches=[], editingId=null, currentFilter='alle';
+let selectedRating='', selectedConsistentie='', dbPath='';
+
+// TIMER STATE
+let timerInterval = null;
+let timerStartTs  = null;   // unix ms timestamp stored in Firebase
+let timerBatchId  = null;   // id of linked batch
+
+// LOGIN
+document.getElementById('login-code').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+window.doLogin = async function() {
+  const code = document.getElementById('login-code').value.trim();
+  if(!code||code.length<3){ showErr('Geef een code in van minstens 3 tekens.'); return; }
+  dbPath = 'logboeken/'+code.replace(/[.#$\[\]\/]/g,'_');
+  const btn = document.getElementById('login-btn');
+  btn.disabled=true; btn.textContent='Verbinden…';
+  document.getElementById('login-error').style.display='none';
+  try {
+    await loadData();
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('f-datum').value=new Date().toISOString().split('T')[0];
+    await loadTimerState();
+    render();
+    applyTimerUI();
+  } catch(e) {
+    showErr('Verbinding mislukt. Controleer je internetverbinding.');
+    btn.disabled=false; btn.textContent='Inloggen →';
+  }
+};
+
+function showErr(msg){ const el=document.getElementById('login-error'); el.textContent=msg; el.style.display='block'; }
+
+window.doLogout = function(){
+  clearInterval(timerInterval); timerInterval=null;
+  batches=[]; dbPath=''; timerStartTs=null; timerBatchId=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-code').value='';
+  document.getElementById('login-btn').disabled=false;
+  document.getElementById('login-btn').textContent='Inloggen →';
+};
+
+// FIREBASE DATA
+async function loadData(){
+  setSyncStatus('syncing','Laden…');
+  const snap = await get(ref(db,dbPath));
+  batches = snap.exists() ? Object.values(snap.val()) : [];
+  batches.sort((a,b)=>b.batchNr-a.batchNr);
+  setSyncStatus('synced','Gesynchroniseerd');
+}
+
+async function saveData(){
+  setSyncStatus('syncing','Opslaan…');
+  try {
+    const obj={}; batches.forEach(b=>{ obj[b.id]=b; });
+    await set(ref(db,dbPath),obj);
+    setSyncStatus('synced','Opgeslagen ✓');
+  } catch(e){ setSyncStatus('error','Sync mislukt'); toast('⚠ Opslaan mislukt'); }
+}
+
+// TIMER PERSISTENCE
+// ── TIMER ──
+function fmtDuration(ms){
+  if(ms<0) ms=0;
+  const totalSec = Math.floor(ms/1000);
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+async function saveTimerState(){
+  try {
+    await set(ref(db, dbPath+'_timer'), {
+      startTs: timerStartTs,
+      batchId: timerBatchId
+    });
+  } catch(e){ console.error('Timer save error', e); }
+}
+
+async function clearTimerState(){
+  try {
+    await set(ref(db, dbPath+'_timer'), { startTs: null, batchId: null });
+  } catch(e){ console.error('Timer clear error', e); }
+}
+
+async function loadTimerState(){
+  try {
+    const snap = await get(ref(db, dbPath+'_timer'));
+    if(snap.exists()){
+      const t = snap.val();
+      timerStartTs = t.startTs || null;
+      timerBatchId = t.batchId || null;
+    }
+  } catch(e){ console.error('Timer load error', e); }
+}
+
+function applyTimerUI(){
+  // Roep dit aan NA render() zodat dropdown al gevuld is
+  if(!timerStartTs){
+    // geen actieve timer
+    document.getElementById('timer-display').textContent = '00:00:00';
+    document.getElementById('timer-batch-label').textContent = 'Geen batch geselecteerd';
+    document.getElementById('timer-start-btn').style.display = '';
+    document.getElementById('timer-stop-btn').style.display = 'none';
+    document.getElementById('timer-card').classList.remove('running');
+    document.getElementById('timer-batch-select').value = '';
+    clearInterval(timerInterval); timerInterval = null;
+    return;
+  }
+  // actieve timer
+  document.getElementById('timer-start-btn').style.display = 'none';
+  document.getElementById('timer-stop-btn').style.display = '';
+  document.getElementById('timer-card').classList.add('running');
+
+  if(timerBatchId){
+    const b = batches.find(x => String(x.id) === String(timerBatchId));
+    document.getElementById('timer-batch-label').textContent =
+      b ? `Batch #${String(b.batchNr).padStart(3,'0')} — ${b.datum}` : '';
+    document.getElementById('timer-batch-select').value = String(timerBatchId);
+  }
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    document.getElementById('timer-display').textContent =
+      fmtDuration(Date.now() - timerStartTs);
+  }, 500);
+  // direct eerste update
+  document.getElementById('timer-display').textContent =
+    fmtDuration(Date.now() - timerStartTs);
+}
+
+function updateTimerSelect(){
+  const sel = document.getElementById('timer-batch-select');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Koppel aan batch —</option>';
+  batches.filter(b=>b.status==='lopend').forEach(b=>{
+    const opt = document.createElement('option');
+    opt.value = String(b.id);
+    opt.textContent = `Batch #${String(b.batchNr).padStart(3,'0')} — ${b.datum}`;
+    sel.appendChild(opt);
+  });
+  // herstel selectie — ook als timer loopt
+  if(timerBatchId) sel.value = String(timerBatchId);
+  else if(prev) sel.value = prev;
+}
+
+window.toggleManualRow = function(){
+  const row = document.getElementById('timer-manual-row');
+  const visible = row.style.display !== 'none';
+  row.style.display = visible ? 'none' : 'flex';
+  if(!visible){
+    const ts = timerStartTs || Date.now();
+    const d = new Date(ts);
+    const local = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById('timer-manual-start').value = local;
+  }
+};
+
+window.applyManualStart = async function(){
+  const val = document.getElementById('timer-manual-start').value;
+  if(!val){ toast('⚠ Kies een datum en tijd'); return; }
+  const newTs = new Date(val).getTime();
+  if(newTs > Date.now()){ toast('⚠ Starttijd kan niet in de toekomst liggen'); return; }
+  timerStartTs = newTs;
+  await saveTimerState();
+  document.getElementById('timer-manual-row').style.display = 'none';
+  applyTimerUI();
+  toast('✓ Starttijd aangepast');
+};
+
+window.startTimer = async function(){
+  const selVal = document.getElementById('timer-batch-select').value;
+  if(!selVal){ toast('⚠ Selecteer eerst een batch voor je de timer start'); return; }
+  timerBatchId = selVal;
+  timerStartTs = Date.now();
+  await saveTimerState();
+  applyTimerUI();
+  toast('Timer gestart');
+};
+
+window.stopTimer = async function(){
+  if(!timerStartTs){ toast('⚠ Geen actieve timer'); return; }
+  clearInterval(timerInterval); timerInterval = null;
+
+  const elapsed = Date.now() - timerStartTs;
+  const uren = Math.round((elapsed / 3600000) * 10) / 10;
+
+  if(timerBatchId){
+    // cast beide naar string om type-mismatch te vermijden
+    const idx = batches.findIndex(b => String(b.id) === String(timerBatchId));
+    if(idx > -1){
+      batches[idx].tijd = uren;
+      await saveData();
+      toast(`✓ ${uren}u opgeslagen in batch #${String(batches[idx].batchNr).padStart(3,'0')}`);
+    } else {
+      toast(`Timer gestopt: ${fmtDuration(elapsed)}`);
+    }
+  } else {
+    toast(`Timer gestopt: ${fmtDuration(elapsed)}`);
+  }
+
+  timerStartTs = null;
+  timerBatchId = null;
+  await clearTimerState();
+  applyTimerUI();
+  render();
+};
+
+window.resetTimer = async function(){
+  if(timerStartTs && !confirm('Timer resetten?')) return;
+  clearInterval(timerInterval); timerInterval = null;
+  timerStartTs = null;
+  timerBatchId = null;
+  await clearTimerState();
+  applyTimerUI();
+};
+
+// RATINGS
+window.setRating = function(btn){
+  document.querySelectorAll('#rating-group .rating-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); selectedRating=btn.dataset.val;
+};
+window.setConsistentie = function(btn){
+  document.querySelectorAll('#consistentie-group .rating-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); selectedConsistentie=btn.dataset.val;
+};
+
+// CRUD
+window.saveBatch = async function(){
+  const datum   =document.getElementById('f-datum').value;
+  const melk    =parseFloat(document.getElementById('f-melk').value);
+  const korrels =parseFloat(document.getElementById('f-korrels').value);
+  const tempRaw =document.getElementById('f-temp').value;
+  const tijdRaw =document.getElementById('f-tijd').value;
+  const temp    =tempRaw ? parseFloat(tempRaw) : '';
+  const tijd    =tijdRaw ? parseFloat(tijdRaw) : '';
+  const melktype=document.getElementById('f-melktype').value;
+  const ph      =document.getElementById('f-ph').value;
+  const status  =document.getElementById('f-status').value;
+  const notities=document.getElementById('f-notities').value.trim();
+  if(!datum||!melk||!korrels){ toast('⚠ Vul datum, melk en korrels in'); return; }
+  if(editingId!==null){
+    const idx=batches.findIndex(b=>String(b.id)===String(editingId));
+    if(idx>-1) batches[idx]={...batches[idx],datum,melk,korrels,temp,tijd,melktype,ph,smaak:selectedRating,consistentie:selectedConsistentie,status,notities};
+    editingId=null;
+  } else {
+    const batchNr=batches.length?Math.max(...batches.map(b=>b.batchNr||0))+1:1;
+    batches.unshift({id:Date.now(),batchNr,datum,melk,korrels,temp,tijd,melktype,ph,smaak:selectedRating,consistentie:selectedConsistentie,status,notities});
+  }
+  resetForm(); render();
+  await saveData(); toast('✓ Opgeslagen in de cloud');
+};
+
+window.editBatch = function(id){
+  const b=batches.find(x=>String(x.id)===String(id)); if(!b) return;
+  editingId=id;
+  document.getElementById('f-datum').value   =b.datum;
+  document.getElementById('f-melk').value    =b.melk;
+  document.getElementById('f-korrels').value =b.korrels;
+  document.getElementById('f-temp').value    =b.temp||'';
+  document.getElementById('f-tijd').value    =b.tijd||'';
+  document.getElementById('f-melktype').value=b.melktype;
+  document.getElementById('f-ph').value      =b.ph||'';
+  document.getElementById('f-status').value  =b.status;
+  document.getElementById('f-notities').value=b.notities||'';
+  document.querySelectorAll('#rating-group .rating-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.val===b.smaak));
+  document.querySelectorAll('#consistentie-group .rating-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.val===b.consistentie));
+  selectedRating=b.smaak||''; selectedConsistentie=b.consistentie||'';
+  document.getElementById('submit-btn').textContent='✓ Wijzigingen opslaan';
+  document.getElementById('submit-btn').classList.add('editing');
+  document.getElementById('cancel-btn').classList.add('visible');
+  document.getElementById('form-title').textContent=`Batch #${b.batchNr} bewerken`;
+  document.querySelector('.form-panel').scrollTop=0;
+};
+
+window.cancelEdit = resetForm;
+
+window.deleteBatch = async function(id){
+  if(!confirm('Batch verwijderen?')) return;
+  batches=batches.filter(b=>String(b.id)!==String(id));
+  render(); await saveData(); toast('Batch verwijderd');
+};
+
+function resetForm(){
+  document.getElementById('f-datum').value=new Date().toISOString().split('T')[0];
+  ['f-melk','f-korrels','f-temp','f-tijd','f-ph'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-melktype').value='Volle melk (gepasteuriseerd)';
+  document.getElementById('f-status').value='lopend';
+  document.getElementById('f-notities').value='';
+  document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('active'));
+  selectedRating=''; selectedConsistentie=''; editingId=null;
+  document.getElementById('submit-btn').textContent='+ Batch toevoegen';
+  document.getElementById('submit-btn').classList.remove('editing');
+  document.getElementById('cancel-btn').classList.remove('visible');
+  document.getElementById('form-title').textContent='Nieuwe batch registreren';
+}
+
+window.setFilter = function(btn,filter){
+  currentFilter=filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); render();
+};
+
+// RENDER
+function render(){
+  updateTimerSelect();
+  const total =batches.length;
+  const goed  =batches.filter(b=>b.status==='goed').length;
+  const liters=batches.reduce((s,b)=>s+(parseFloat(b.melk)||0),0);
+  const avg   =batches.length?(batches.reduce((s,b)=>s+(parseFloat(b.korrels)||0),0)/batches.length).toFixed(0):0;
+  document.getElementById('stats-bar').innerHTML=`
+    <div><div class="stat-val">${total}</div><div class="stat-label">Batches totaal</div></div>
+    <div><div class="stat-val">${goed}</div><div class="stat-label">Goed bewaard</div></div>
+    <div><div class="stat-val">${liters.toFixed(1)} L</div><div class="stat-label">Totaal gefermenteerd</div></div>
+    <div><div class="stat-val">${avg} g</div><div class="stat-label">Gem. korrels/batch</div></div>`;
+
+  const list=document.getElementById('log-list');
+  const filtered=currentFilter==='alle'?batches:batches.filter(b=>b.status===currentFilter);
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty-state"><div style="font-size:48px;opacity:.3;margin-bottom:16px">🥛</div><h3>Nog geen batches</h3><p>Voeg je eerste batch toe via het formulier links.</p></div>`;
+    return;
+  }
+  const labels={goed:'Goed',ok:'Ok',weggegooid:'Weggegooid',lopend:'Lopend',afgewacht:'Afgewacht'};
+  list.innerHTML=filtered.map(b=>{
+    const ratio  =b.melk?((b.korrels/(b.melk*1000))*100).toFixed(1):'—';
+    const dateFmt=b.datum?new Date(b.datum).toLocaleDateString('nl-BE',{day:'numeric',month:'long',year:'numeric'}):'—';
+    const isTimerBatch = timerStartTs && timerBatchId===b.id;
+    const timerBadge = isTimerBatch ? `<span class="batch-timer-badge active">⏱ loopt</span>` : '';
+    return `<div class="batch-card status-${b.status}">
+      <div class="batch-top">
+        <div><div class="batch-num">BATCH #${String(b.batchNr).padStart(3,'0')}</div><div class="batch-date">${dateFmt} ${timerBadge}</div></div>
+        <div class="batch-actions">
+          <span class="status-pill ${b.status}">${labels[b.status]||b.status}</span>
+          ${(b.status==='goed'||b.status==='ok')?`<button class="icon-btn label-btn" onclick="showLabel(${b.id})" title="Etiket genereren">🏷 Etiket</button>`:''}
+          <button class="icon-btn" onclick="editBatch(${b.id})">✎</button>
+          <button class="icon-btn delete" onclick="deleteBatch(${b.id})">✕</button>
+        </div>
+      </div>
+      <div class="batch-grid">
+        <div><div class="batch-field-label">Melk</div><div class="batch-field-val">${b.melk} L</div></div>
+        <div><div class="batch-field-label">Korrels</div><div class="batch-field-val">${b.korrels} g</div></div>
+        <div><div class="batch-field-label">Verhouding</div><div class="batch-field-val">${ratio}%</div></div>
+        <div><div class="batch-field-label">Temperatuur</div><div class="batch-field-val">${b.temp?b.temp+' °C':'—'}</div></div>
+        <div><div class="batch-field-label">Fermentatietijd</div><div class="batch-field-val">${b.tijd?b.tijd+' uur':'—'}</div></div>
+        <div><div class="batch-field-label">pH</div><div class="batch-field-val">${b.ph||'—'}</div></div>
+        <div><div class="batch-field-label">Smaak</div><div class="batch-field-val">${b.smaak||'—'}</div></div>
+        <div><div class="batch-field-label">Consistentie</div><div class="batch-field-val">${b.consistentie||'—'}</div></div>
+      </div>
+      <div style="margin-bottom:6px"><div class="batch-field-label">Melktype</div><div class="batch-field-val" style="font-size:13px">${b.melktype||'—'}</div></div>
+      ${b.notities?`<div class="batch-notes">${b.notities}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+window.importCSV = async function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const text = await file.text();
+  const lines = text.split('\n').filter(l=>l.trim());
+  if(lines.length < 2){ toast('⚠ Geen data gevonden in bestand'); return; }
+  const headers = lines[0].split(',').map(h=>h.replace(/"/g,'').trim());
+  const imported = [];
+  for(let i=1;i<lines.length;i++){
+    const cols = lines[i].match(/(".*?"|[^,]+)(?=,|$)/g);
+    if(!cols||cols.length<2) continue;
+    const val = idx => (cols[idx]||'').replace(/^"|"$/g,'').trim();
+    const batchNr = parseInt(val(0))||0;
+    if(!batchNr) continue;
+    imported.push({
+      id: Date.now()+i,
+      batchNr,
+      datum:    val(1),
+      melk:     parseFloat(val(2))||0,
+      korrels:  parseFloat(val(3))||0,
+      temp:     parseFloat(val(5))||'',
+      tijd:     parseFloat(val(6))||'',
+      melktype: val(7)||'Volle melk (gepasteuriseerd)',
+      ph:       val(8)||'',
+      smaak:    val(9)||'',
+      consistentie: val(10)||'',
+      status:   val(11)||'lopend',
+      notities: val(12)||''
+    });
+  }
+  if(!imported.length){ toast('⚠ Geen geldige batches gevonden'); return; }
+  if(!confirm(`${imported.length} batches importeren en samenvoegen met huidige data?`)) return;
+  // merge: skip duplicates by batchNr
+  const existingNrs = new Set(batches.map(b=>b.batchNr));
+  const nieuweB = imported.filter(b=>!existingNrs.has(b.batchNr));
+  batches = [...batches, ...nieuweB].sort((a,b)=>b.batchNr-a.batchNr);
+  render();
+  await saveData();
+  toast(`✓ ${nieuweB.length} nieuwe batches geïmporteerd`);
+  e.target.value='';
+};
+
+// JERSEY KOE SVG (statisch, printklaar)
+const JERSEY_COW_SVG = `<svg width="90" height="56" viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="340" cy="248" rx="270" ry="14" fill="#A8C878" opacity="0.28"/>
+  <ellipse cx="355" cy="178" rx="132" ry="70" fill="#C8986A"/>
+  <ellipse cx="310" cy="160" rx="42" ry="28" fill="#5C3222" opacity="0.48"/>
+  <ellipse cx="395" cy="190" rx="28" ry="18" fill="#5C3222" opacity="0.40"/>
+  <rect x="415" y="222" width="22" height="46" rx="8" fill="#B07848"/>
+  <rect x="450" y="217" width="22" height="51" rx="8" fill="#B07848"/>
+  <rect x="275" y="220" width="22" height="46" rx="8" fill="#B07848"/>
+  <rect x="310" y="217" width="22" height="50" rx="8" fill="#B07848"/>
+  <rect x="415" y="258" width="22" height="11" rx="5" fill="#3C2210"/>
+  <rect x="450" y="257" width="22" height="12" rx="5" fill="#3C2210"/>
+  <rect x="275" y="256" width="22" height="11" rx="5" fill="#3C2210"/>
+  <rect x="310" y="257" width="22" height="11" rx="5" fill="#3C2210"/>
+  <ellipse cx="344" cy="240" rx="36" ry="14" fill="#E8B4B0"/>
+  <rect x="326" y="248" width="7" height="11" rx="3" fill="#D49090"/>
+  <rect x="338" y="250" width="7" height="13" rx="3" fill="#D49090"/>
+  <rect x="351" y="250" width="7" height="13" rx="3" fill="#D49090"/>
+  <rect x="363" y="248" width="7" height="11" rx="3" fill="#D49090"/>
+  <path d="M487 155 Q516 122 511 88 Q508 70 500 62" stroke="#B07848" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <ellipse cx="499" cy="59" rx="10" ry="13" fill="#7A4828"/>
+  <path d="M235 122 Q255 110 270 130 Q274 160 260 176 Q244 183 230 173 Z" fill="#C8986A"/>
+  <ellipse cx="208" cy="143" rx="60" ry="54" fill="#C8986A"/>
+  <ellipse cx="185" cy="166" rx="34" ry="22" fill="#DCBA94"/>
+  <circle cx="175" cy="168" r="5" fill="#9A6A46" opacity="0.6"/>
+  <circle cx="195" cy="168" r="5" fill="#9A6A46" opacity="0.6"/>
+  <path d="M173 178 Q185 186 197 178" stroke="#9A6A46" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="184" cy="132" rx="13" ry="12" fill="white"/>
+  <ellipse cx="184" cy="132" rx="13" ry="12" fill="none" stroke="#7A5038" stroke-width="1.5"/>
+  <circle cx="184" cy="132" r="8" fill="#3A2010"/>
+  <circle cx="187" cy="129" r="3" fill="white"/>
+  <circle cx="188" cy="128" r="1.2" fill="#3A2010"/>
+  <path d="M174 123 Q171 117 170 113" stroke="#5C3820" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M180 121 Q179 114 179 110" stroke="#5C3820" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M187 120 Q188 113 190 109" stroke="#5C3820" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="226" cy="127" rx="11" ry="10" fill="white"/>
+  <ellipse cx="226" cy="127" rx="11" ry="10" fill="none" stroke="#7A5038" stroke-width="1.5"/>
+  <circle cx="226" cy="127" r="7" fill="#3A2010"/>
+  <circle cx="229" cy="124" r="2.5" fill="white"/>
+  <circle cx="230" cy="123" r="1" fill="#3A2010"/>
+  <path d="M218 119 Q216 113 215 110" stroke="#5C3820" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M224 117 Q223 111 224 107" stroke="#5C3820" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <path d="M230 117 Q232 111 234 107" stroke="#5C3820" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="158" cy="107" rx="14" ry="22" fill="#C8986A" transform="rotate(18,158,107)"/>
+  <ellipse cx="158" cy="107" rx="8" ry="13" fill="#E0B898" transform="rotate(18,158,107)"/>
+  <ellipse cx="252" cy="96" rx="13" ry="20" fill="#C8986A" transform="rotate(-22,252,96)"/>
+  <ellipse cx="252" cy="96" rx="7" ry="12" fill="#E0B898" transform="rotate(-22,252,96)"/>
+  <path d="M170 100 Q162 75 150 67" stroke="#D4B070" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="149" cy="66" r="5" fill="#C4A060"/>
+  <path d="M240 93 Q250 70 262 64" stroke="#D4B070" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="263" cy="63" r="4" fill="#C4A060"/>
+</svg>`;
+
+window.showLabel = function(id){
+  const b = batches.find(x=>x.id===id); if(!b) return;
+  const prodDate = b.datum ? new Date(b.datum) : new Date();
+  const expDate  = new Date(prodDate); expDate.setDate(expDate.getDate()+7);
+  const fmtDate  = d => d.toLocaleDateString('nl-BE',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  document.getElementById('label-preview').innerHTML = `
+    <div class="etiket" id="print-etiket" data-batchid="${b.id}">
+      <div class="etiket-header">
+        <div class="etiket-koe">${JERSEY_COW_SVG}</div>
+        <div class="etiket-brand">Melkkefir</div>
+        <div class="etiket-subbrand">Kalmthout</div>
+      </div>
+      <div class="etiket-body">
+        <div class="etiket-product">Melkkefir</div>
+        <div class="etiket-sub">Ambachtelijk gefermenteerd · 250 ml</div>
+        <div class="etiket-dates">
+          <div class="etiket-date-box">
+            <div class="etiket-date-label">Productiedatum</div>
+            <div class="etiket-date-val">${fmtDate(prodDate)}</div>
+          </div>
+          <div class="etiket-date-box">
+            <div class="etiket-date-label">Te gebruiken voor</div>
+            <div class="etiket-date-val">${fmtDate(expDate)}</div>
+          </div>
+        </div>
+        <hr class="etiket-divider">
+        <div class="etiket-row"><span class="etiket-row-label">Batch</span><span class="etiket-row-val">#${String(b.batchNr).padStart(3,'0')}</span></div>
+        <div class="etiket-row"><span class="etiket-row-label">Ingrediënten</span><span class="etiket-row-val">Volle melk, kefirkorrelcultuur</span></div>
+        <div class="etiket-row"><span class="etiket-row-label">Allergenen</span><span class="etiket-row-val">Melk en melkproducten</span></div>
+        <div class="etiket-row"><span class="etiket-row-label">Bewaren</span><span class="etiket-row-val">Gekoeld bij max. 4°C</span></div>
+        <div class="etiket-row"><span class="etiket-row-label">Inhoud</span><span class="etiket-row-val">250 ml</span></div>
+        ${b.melktype?`<div class="etiket-row"><span class="etiket-row-label">Melktype</span><span class="etiket-row-val">${b.melktype}</span></div>`:''}
+        <hr class="etiket-divider">
+        
+      </div>
+      <div class="etiket-footer">
+        <span>Karen Buytaert · Kalmthout</span>
+        
+      </div>
+    </div>`;
+  document.getElementById('label-modal').style.display='flex';
+};
+
+window.closeLabelModal = function(e){
+  if(e.target===document.getElementById('label-modal'))
+    document.getElementById('label-modal').style.display='none';
+};
+
+window.printLabel = function(){
+  const etiket = document.getElementById('print-etiket');
+  const batchId = etiket.dataset.batchid;
+  const b = batches.find(x=>String(x.id)===String(batchId));
+  const aantalFlesjes = b ? Math.round((parseFloat(b.melk)||1) * 4) : 1;
+
+  const style = document.createElement('style');
+  style.id = 'print-override';
+  style.textContent = `
+    @media print {
+      @page { margin: 8mm; size: A4 portrait; }
+      body > *:not(#print-layer) { display: none !important; }
+      #print-layer {
+        display: block !important;
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 9999;
+      }
+      .print-page {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4mm;
+        align-content: start;
+        page-break-after: always;
+        break-after: page;
+        height: 277mm;
+        overflow: hidden;
+      }
+      .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .print-page .etiket {
+        width: 100%;
+        border: 1.5px solid #3D5A3E !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        overflow: hidden;
+      }
+      .print-page .etiket-header { padding: 10px 14px 8px !important; }
+      .print-page .etiket-brand { font-size: 16px !important; }
+      .print-page .etiket-body { padding: 10px 14px !important; }
+      .print-page .etiket-product { font-size: 14px !important; margin-bottom: 1px !important; }
+      .print-page .etiket-sub { margin-bottom: 8px !important; }
+      .print-page .etiket-dates { gap: 5px !important; margin-bottom: 8px !important; }
+      .print-page .etiket-date-box { padding: 5px 8px !important; }
+      .print-page .etiket-date-label { font-size: 7px !important; }
+      .print-page .etiket-date-val { font-size: 11px !important; }
+      .print-page .etiket-row { padding: 1px 0 !important; font-size: 9px !important; }
+      .print-page .etiket-divider { margin: 6px 0 !important; }
+      .print-page .etiket-footer { padding: 5px 14px !important; font-size: 8px !important; }
+      .print-page .etiket-koe svg { width: 60px !important; height: 38px !important; }
+      .modal-overlay { display: none !important; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const layer = document.createElement('div');
+  layer.id = 'print-layer';
+  layer.style.cssText = 'display:none;';
+
+  const perPagina = 6; // 3 rijen x 2 kolommen — past zeker op A4
+  let huidigePagina = null;
+  for(let i=0; i<aantalFlesjes; i++){
+    if(i % perPagina === 0){
+      huidigePagina = document.createElement('div');
+      huidigePagina.className = 'print-page';
+      layer.appendChild(huidigePagina);
+    }
+    huidigePagina.appendChild(etiket.cloneNode(true));
+  }
+  document.body.appendChild(layer);
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      document.body.removeChild(layer);
+      document.head.removeChild(style);
+    }, 500);
+  }, 200);
+};
+
+window.exportCSV = function(){
+  if(!batches.length){ toast('Geen data'); return; }
+  const headers=['Batch#','Datum','Melk (L)','Korrels (g)','Verhouding (%)','Temp (°C)','Fermentatie (u)','Melktype','pH','Smaak','Consistentie','Status','Notities'];
+  const rows=[...batches].sort((a,b)=>a.batchNr-b.batchNr).map(b=>[
+    b.batchNr,b.datum,b.melk,b.korrels,
+    b.melk?((b.korrels/(b.melk*1000))*100).toFixed(1):'',
+    b.temp||'',b.tijd||'',b.melktype,b.ph||'',b.smaak||'',b.consistentie||'',b.status,
+    (b.notities||'').replace(/"/g,'""')
+  ].map(v=>`"${v}"`).join(','));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+[headers.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download=`kefir-logboek-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click(); toast('✓ CSV geëxporteerd');
+};
+
+function setSyncStatus(state,label){
+  document.getElementById('sync-dot').className=`sync-dot ${state}`;
+  document.getElementById('sync-label').textContent=label;
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+window.showToast=toast;
+
+// ── BATCH MODAL ──
+window.openNewBatchModal = function(){
+  editingId=null; selectedRating=''; selectedConsistentie='';
+  document.getElementById('m-datum').value=new Date().toISOString().split('T')[0];
+  ['m-melk','m-korrels','m-temp','m-tijd','m-ph'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('m-melktype').value='Volle melk (gepasteuriseerd)';
+  document.getElementById('m-status').value='lopend';
+  document.getElementById('m-notities').value='';
+  document.querySelectorAll('#m-rating-group .rating-btn, #m-consistentie-group .rating-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('edit-modal-title').textContent='Nieuwe batch';
+  document.getElementById('modal-submit-btn').textContent='+ Batch toevoegen';
+  document.getElementById('modal-submit-btn').classList.remove('editing');
+  document.getElementById('edit-modal').style.display='flex';
+};
+window.setModalRating=function(btn){
+  document.querySelectorAll('#m-rating-group .rating-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); selectedRating=btn.dataset.val;
+};
+window.setModalConsistentie=function(btn){
+  document.querySelectorAll('#m-consistentie-group .rating-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); selectedConsistentie=btn.dataset.val;
+};
+window.cancelEdit=function(){
+  editingId=null; selectedRating=''; selectedConsistentie='';
+  document.getElementById('edit-modal').style.display='none';
+};
+window.saveModalBatch=async function(){
+  const datum=document.getElementById('m-datum').value;
+  const melkRaw=document.getElementById('m-melk').value;
+  const korrRaw=document.getElementById('m-korrels').value;
+  const tempRaw=document.getElementById('m-temp').value;
+  const tijdRaw=document.getElementById('m-tijd').value;
+  const melktype=document.getElementById('m-melktype').value;
+  const ph=document.getElementById('m-ph').value;
+  const status=document.getElementById('m-status').value;
+  const notities=document.getElementById('m-notities').value.trim();
+  const melk=melkRaw?parseFloat(melkRaw):'';
+  const korrels=korrRaw?parseFloat(korrRaw):'';
+  const temp=tempRaw?parseFloat(tempRaw):'';
+  const tijd=tijdRaw?parseFloat(tijdRaw):'';
+  if(!datum||!melk||!korrels){toast('⚠ Vul datum, melk en korrels in');return;}
+  if(editingId!==null){
+    const idx=batches.findIndex(b=>String(b.id)===String(editingId));
+    if(idx>-1){
+      const wasLopend=batches[idx].status==='lopend',nowLopend=status==='lopend';
+      if(wasLopend&&!nowLopend&&batches[idx].timerStartTs){
+        const el=Math.round(((Date.now()-batches[idx].timerStartTs)/3600000)*10)/10;
+        if(!tijd)batches[idx].tijd=el;
+        batches[idx].timerStartTs=null;
+        if(typeof timerIntervals!=='undefined'){clearInterval(timerIntervals[editingId]);delete timerIntervals[editingId];}
+        if(typeof cancelPushoverAlerts==='function')cancelPushoverAlerts(editingId);
+      }
+      batches[idx]={...batches[idx],datum,melk,korrels,temp,tijd,melktype,ph,smaak:selectedRating,consistentie:selectedConsistentie,status,notities};
+    }
+  } else {
+    const batchNr=batches.length?Math.max(...batches.map(b=>b.batchNr||0))+1:1;
+    const newId=Date.now();
+    batches.unshift({id:newId,batchNr,datum,melk,korrels,temp,tijd,melktype,ph,smaak:selectedRating,consistentie:selectedConsistentie,status,notities,timerStartTs:status==='lopend'?newId:null});
+  }
+  editingId=null;
+  document.getElementById('edit-modal').style.display='none';
+  render();
+  await saveData();
+  if(typeof startAllBatchTimers==='function')startAllBatchTimers();
+  toast('✓ Opgeslagen in de cloud');
+};
+window.editBatch=function(id){
+  const b=batches.find(x=>String(x.id)===String(id));if(!b)return;
+  editingId=id;
+  document.getElementById('m-datum').value=b.datum||'';
+  document.getElementById('m-melk').value=b.melk||'';
+  document.getElementById('m-korrels').value=b.korrels||'';
+  document.getElementById('m-temp').value=b.temp||'';
+  document.getElementById('m-tijd').value=b.tijd||'';
+  document.getElementById('m-melktype').value=b.melktype||'Volle melk (gepasteuriseerd)';
+  document.getElementById('m-ph').value=b.ph||'';
+  document.getElementById('m-status').value=b.status||'lopend';
+  document.getElementById('m-notities').value=b.notities||'';
+  document.querySelectorAll('#m-rating-group .rating-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.val===b.smaak));
+  document.querySelectorAll('#m-consistentie-group .rating-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.val===b.consistentie));
+  selectedRating=b.smaak||'';selectedConsistentie=b.consistentie||'';
+  document.getElementById('edit-modal-title').textContent=`Batch #${String(b.batchNr).padStart(3,'0')} bewerken`;
+  document.getElementById('modal-submit-btn').textContent='✓ Wijzigingen opslaan';
+  document.getElementById('modal-submit-btn').classList.add('editing');
+  document.getElementById('edit-modal').style.display='flex';
+};
+</script>
+</body>
+</html>
